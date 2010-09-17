@@ -1,0 +1,56 @@
+<project name="java-obo" default="dist" basedir=".">
+    <description>
+		Example build file.
+    </description>
+
+	<property name="javadir" location="java" />
+	<property name="src" location="${javadir}/src"/>
+	<property name="lib"  location="${javadir}/lib"/>
+	<property name="build" location="${javadir}/build"/>
+	<property name="dist"  location="dist"/>
+	<property name="project"  location="java-obo"/>
+
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${build}"/>
+	</target>
+  
+	<target name="build" depends="init" description="compile the source " >
+		<javac destdir="${build}" includeantruntime="false">
+			<src path="${src}" />
+			<classpath>
+				<!-- <pathelement path="${classpath}"/> -->
+				<!-- <pathelement location="classes"/> -->
+				<!-- <filelist refid="third-party_jars"/> -->
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+		</javac> 
+	</target>
+
+	<target name="jar" depends="build" description="generate the jar file" >
+		<mkdir dir="${dist}/lib"/>
+		<!-- <jar jarfile="${dist}/lib/${project}-${DSTAMP}.jar" basedir="${build}"/> -->
+
+		<jar destfile="${dist}/lib/${project}-${DSTAMP}.jar">
+			<fileset dir="${build}/" />
+			<restrict>
+				<name name="**/*.class"/>
+				<archives>
+					<zips>
+						<fileset dir="lib/" includes="**/*.jar"/>
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<!-- <attribute name="Main-Class" value="MAIN-CLASS"/> -->
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up" >
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
