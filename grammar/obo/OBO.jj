@@ -1,0 +1,205 @@
+options { 
+	STATIC = false;
+}
+
+PARSER_BEGIN(SExprParser) 
+
+import java.util.*;
+import java.io.*;
+
+public class OBO_BNFParser { 
+
+	public static void main(String[] args) throws ParseException { 
+		OBO_BNFParser parser = null; 
+		if(args.length > 0) { 
+			parser = new OBO_BNFParser(new StringReader(args[0]));
+		} else { 
+			parser = new OBO_BNFParser(System.in);
+		}
+		System.out.println(parser.OBO().toString());
+	}
+}
+
+PARSER_END(SExprParser) 
+
+/*
+WhiteSpaceChar ::= ' ' | \t | U+0020 | U+0009
+ws ::= { WhiteSpaceChar }
+NewlineChar ::= \r | \n | U+000A | U+000C | U+000D
+nl ::= ws NewLineChar
+nl* ::= { nl }
+nl+ ::= nl  { ws NewLineChar }
+OBOChar ::= '\' Letter | ( Char - (NewLineChar | '\') )
+ */
+
+SKIP: { 
+}
+
+TOKEN: {
+	<WHITESPACECHAR: [" ","\t","\u0020","\u0009"]>
+	| <NEWLINECHAR: ["\r","\n","\u000A","\u000C","\u000D"]>
+	| <CHAR: ["a"-"z","A"-"Z","0"-"9"]> 
+}
+
+void ws() : {} { 
+	( <WHITESPACECHAR> )*	
+}
+
+void nl() : {} { 
+	( <WS> )* <NEWLINECHAR> 
+}
+
+void nlplus() : {}
+{
+	NL() ( ws() <NEWLINECHAR> )*
+}
+
+// OBOChar ::= '\' Letter | ( Char - (NewLineChar | '\') )
+void OBOChar() : {} { 
+	"\\" <CHAR> 
+	| "\\" "\""
+	| "\""
+	| <CHAR>
+	| <WHITESPACECHAR> 
+}
+
+void OBOCharNoWhitespace() : {}
+{
+	"\\" <CHAR>
+	| "\\" "\""
+	| "\""
+	| <CHAR>
+}
+
+void OBOCharNoDblQuote() : {} { 
+	"\\" <CHAR> 
+	| "\\" "\""
+	| <CHAR>
+	| <WHITESPACECHAR> 
+}
+
+/*
+EOL ::=  ws* [ QualifierBlock ] ws* [ HiddenComment ] ws* NewLineChar
+QualifierBlock ::= '{' QualifierList } 
+HiddenComment ::= '!' { ( Char - NewlineChar ) } 
+ */
+
+void HiddenComment() : {}
+{
+	"!" ( CharNoNewline() )*	
+}
+
+void QualifierList() : {}
+{
+	??
+}
+
+void QualifierBlock() : {}
+{
+	"{" QualifierList() "}"
+}
+
+void EOL() : {}
+{
+	( ws() )* ( QualifierBlock() )? ( ws() )* ( HiddenComment() )? ( ws() )* <NEWLINECHAR> 
+}
+
+/*
+QuotedString ::=  DblQuote { ( OBOChar - DblQuote ) } DblQuote
+UnquotedString ::=  { OBOChar  }
+OBOToken ::=  { ( OBOChar - WhiteSpaceChar )  }
+ID ::=  Class-ID | Rel-ID  | Instance-ID  | Other-ID 
+Class-ID ::=  OBOToken
+Rel-ID ::=  OBOToken
+Instance-ID ::=  OBOToken
+Other-ID ::=  OBOToken
+*/
+
+void QuotedString() : {}
+{
+	"\"" ( OBOCharNoDblQuote() )* "\""
+}
+
+void UnquotedString() : {}
+{
+	( OBOChar() )*
+}
+
+void OBOToken() : {}
+{
+	( OBOCharNoWhitespace() )*
+}
+
+void ClassID() : {}
+{
+	OBOToken()
+}
+
+void RelID() : {}
+{
+	OBOToken()
+}
+
+void InstanceID() : {}
+{
+	OBOToken()
+}
+
+void OtherID() : {}
+{
+	OBOToken()
+}
+
+void ID() : {}
+{
+	ClassID() 
+	| RelID() 
+	| InstanceID() 
+	| OtherID()
+}
+
+/*
+OBO-Doc := header-frame { entity-frame } nl*
+
+header-frame ::= { header-clause nl* }
+header-clause ::= format-version-TVP
+	| data-version-TVP
+	| data-Tag  DD-MM-YYYY sp hh-mm
+	| saved-by-TVP
+	| auto-generated-by-TVP
+	| import-Tag  IRI | filepath
+	| subsetdef-Tag  ID sp QuotedString
+	| synonymtypedef-Tag  ID sp QuotedString [  ID ]
+	| default-namespace-Tag  OBONamespace
+	| idspace-Tag IDPrefix sp IRI [ sp QuotedString ]
+	| treat-xrefs-as-equivalent-Tag IDPrefix
+	| treat-xrefs-as-genus-differentia-Tag IDPrefix ws Rel-ID ws Class-ID
+	| treat-xrefs-as-relationship-Tag IDPrefix
+	| treat-xrefs-as-is_a-Tag IDPrefix
+	| remark-TVP
+	| UnreservedToken ':'  [  ws ] UnquotedString
+entity-frame ::= term-frame | typedef-frame | instance-frame | annotation-frame
+*/
+
+void OBODoc() : {}
+{
+	HeaderFrame() ( EntityFrame() )* ( nl() )*
+}
+
+void HeaderFrame() : {}
+{
+	( HeaderClause() ( nl() )* )*
+}
+
+void HeaderClause() : {}
+{
+		
+}
+
+void EntityFrame() : {}
+{
+	TermFrame() 
+	| TypedefFrame() 
+	| InstanceFrame()
+	| AnnotationFrame()
+}
