@@ -22,7 +22,7 @@
 				<!-- <pathelement path="${classpath}"/> -->
 				<!-- <pathelement location="classes"/> -->
 				<!-- <filelist refid="third-party_jars"/> -->
-				<fileset dir="lib">
+				<fileset dir="${lib}">
 					<include name="**/*.jar"/>
 				</fileset>
 			</classpath>
@@ -31,7 +31,6 @@
 
 	<target name="jar" depends="build" description="generate the jar file" >
 		<mkdir dir="${dist}/lib"/>
-		<!-- <jar jarfile="${dist}/lib/${project}-${DSTAMP}.jar" basedir="${build}"/> -->
 
 		<jar destfile="${dist}/lib/${project}-${DSTAMP}.jar">
 			<fileset dir="${build}/" />
@@ -39,12 +38,12 @@
 				<name name="**/*.class"/>
 				<archives>
 					<zips>
-						<fileset dir="lib/" includes="**/*.jar"/>
+						<fileset dir="${lib}" includes="**/*.jar"/>
 					</zips>
 				</archives>
 			</restrict>
 			<manifest>
-				<!-- <attribute name="Main-Class" value="MAIN-CLASS"/> -->
+				<attribute name="Main-Class" value="org.sc.obo.OBOParser"/> 
 			</manifest>
 		</jar>
 	</target>

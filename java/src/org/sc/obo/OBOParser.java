@@ -4,13 +4,10 @@ import java.util.*;
 import java.io.*;
 import java.util.regex.*;
 
-import org.sc.pir.PIR;
-
 public class OBOParser {
 	
 	public static void main(String[] args) { 
-		PIR pir = new PIR();
-		File f = pir.getPROOBOFile();
+		File f = new File(args[0]);
 		OBOParser parser = new OBOParser();
 		try {
 			parser.parse(f);
