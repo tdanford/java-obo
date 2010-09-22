@@ -1,6 +1,7 @@
+Personal code that I've developed to parse and represent OBO files, in Java.
 
-Personal code that I've developed to parse and represent OBO ontologies in Java.
+    http://www.geneontology.org/GO.format.obo-1_2.shtml
 
 This will ultimately be replaced with a more formal parser based on Chris Mungall's OBO BNF: 
 
-http://berkeleybop.org/~cjm/obo2owl/obo-syntax.html
+    http://berkeleybop.org/~cjm/obo2owl/obo-syntax.html
