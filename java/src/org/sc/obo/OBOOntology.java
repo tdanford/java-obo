@@ -41,4 +41,8 @@ public class OBOOntology extends OBOStanza {
 	public Collection<OBOStanza> getStanzas() {
 		return stanzas.values();
 	}
+	
+	public OBOStanza getStanza(String id) { 
+		return stanzas.get(id);
+	}
 }
