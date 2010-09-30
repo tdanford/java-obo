@@ -18,7 +18,7 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "name", name(cls));
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "def", def(cls));
 		
-		for(Method method : findRelationships(cls)) {
+		for(Method method : findImmediateRelations(cls)) {
 			java.methodDeclaration(method.getModifiers(), method.getReturnType(), method.getName(),
 					null, null, null, Property.class);
 		}

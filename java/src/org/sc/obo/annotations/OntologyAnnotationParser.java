@@ -164,7 +164,7 @@ public class OntologyAnnotationParser {
 		}
 	}
 	
-	public Method[] findRelationships(Class cls) {
+	public Method[] findImmediateRelations(Class cls) {
 		ArrayList<Method> ms = new ArrayList<Method>();
 		for(Method m : cls.getDeclaredMethods()) { 
 			if(m.isAnnotationPresent(Relates.class)) { 
@@ -174,7 +174,17 @@ public class OntologyAnnotationParser {
 		return ms.toArray(new Method[0]);
 	}
 	
-	public String relationshipTypedef(Method m) { 
+	public Method[] findAllRelations(Class cls) {
+		ArrayList<Method> ms = new ArrayList<Method>();
+		for(Method m : cls.getMethods()) { 
+			if(m.isAnnotationPresent(Relates.class)) { 
+				ms.add(m);
+			}
+		}
+		return ms.toArray(new Method[0]);
+	}
+	
+	public String relationProperty(Method m) { 
 		if(m.isAnnotationPresent(Relates.class)) {
 			Relates rel = m.getAnnotation(Relates.class);
 			String typedef = rel.value();
@@ -189,7 +199,7 @@ public class OntologyAnnotationParser {
 		}
 	}
 	
-	public Class relationshipType(Method m) { 
+	public Class relationType(Method m) { 
 		if(m.isAnnotationPresent(Relates.class)) {
 			Relates rel = m.getAnnotation(Relates.class);
 			Class type = m.getReturnType();

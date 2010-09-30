@@ -55,10 +55,10 @@ public class OBOAnnotationParser extends OntologyAnnotationParser {
 			sb.append(String.format("is_a: %s\n", oboTag(superClass)));
 		}
 		
-		for(Method m : findRelationships(cls)) { 
+		for(Method m : findImmediateRelations(cls)) { 
 			sb.append(String.format("relationship: %s %s\n", 
-					relationshipTypedef(m),
-					oboTag(relationshipType(m))));
+					relationProperty(m),
+					oboTag(relationType(m))));
 		}
 		
 		return sb.toString();
