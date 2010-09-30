@@ -91,7 +91,13 @@ public class JavaWriter {
 		writer.print(indent());
 	}
 	
-	public void beginInterface(int modifiers, String interfaceName, Class[] interfaces) {
+	public void beginInterface(int modifiers, String interfaceName, Class[] interfaces, Class... annotations) {
+		
+		for(Class annotation : annotations) { 
+			writer.println(String.format("@%s", annotation.getSimpleName()));
+		}
+		useClasses(annotations);
+		
 		doIndent();
 		printIfAccess(modifiers);
 		printIfStatic(modifiers);
@@ -150,7 +156,12 @@ public class JavaWriter {
 		return c2.isAssignableFrom(c1);
 	}
 	
-	public void field(int modifiers, Class type, String name, String init) { 
+	public void field(int modifiers, Class type, String name, String init, Class... annotations) { 
+		for(Class annotation : annotations) { 
+			writer.println(String.format("@%s", annotation.getSimpleName()));
+		}
+		useClasses(annotations);
+		
 		doIndent();
 		printIfAccess(modifiers);
 		printIfStatic(modifiers);
@@ -171,7 +182,12 @@ public class JavaWriter {
 		useClasses(type);
 	}
 	
-	private void printMethodLine(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList) { 
+	private void printMethodLine(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
+		for(Class annotation : annotations) { 
+			writer.println(String.format("@%s", annotation.getSimpleName()));
+		}
+		useClasses(annotations);
+		
 		doIndent();
 		printIfAccess(modifiers);
 		printIfStatic(modifiers);
@@ -204,13 +220,13 @@ public class JavaWriter {
 		useClasses(throwsList);
 	}
 		
-	public void methodDeclaration(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList) { 
-		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList);
+	public void methodDeclaration(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
+		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList, annotations);
 		writer.println(";");
 	}
 	
-	public void beginMethod(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList) { 
-		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList);
+	public void beginMethod(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
+		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList, annotations);
 		writer.println(" {");
 		blockTypes.addFirst(METHOD);
 	}

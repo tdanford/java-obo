@@ -12,17 +12,15 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		PrintWriter pw = new PrintWriter(writer);
 		JavaWriter java = new JavaWriter(pw);
 		
-		pw.println("@Term");
-		java.beginInterface(0, camelCase(name(cls), "\\s+"), cls.getInterfaces());
+		java.beginInterface(0, camelCase(name(cls), "\\s+"), cls.getInterfaces(), Term.class);
 		
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "id", id(cls));
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "name", name(cls));
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "def", def(cls));
 		
 		for(Method method : findRelationships(cls)) {
-			pw.println("@Property");
 			java.methodDeclaration(method.getModifiers(), method.getReturnType(), method.getName(),
-					null, null, null);
+					null, null, null, Property.class);
 		}
 		
 		java.endInterface();
