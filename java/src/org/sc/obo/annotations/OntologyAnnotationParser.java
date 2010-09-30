@@ -9,6 +9,18 @@ public class OntologyAnnotationParser {
 		return unCamelCase(str, " ");
 	}
 	
+	public static String camelCase(String str, String spacer) { 
+		StringBuilder sb = new StringBuilder();
+		String[] array = str.split(spacer);
+		for(String a : array) {
+			if(a.length() > 0) { 
+				String cca = Character.toUpperCase(a.charAt(0)) + a.substring(1, a.length());
+				sb.append(cca);
+			}
+		}
+		return sb.toString();
+	}
+	
 	public static String unCamelCase(String str, String spacer) { 
 		Set<Integer> wordBoundaries = new TreeSet<Integer>();
 		if(str.length() > 0) {
