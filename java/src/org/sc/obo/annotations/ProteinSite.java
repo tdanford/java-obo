@@ -17,7 +17,7 @@ public @Term interface ProteinSite extends Site {
 	public static String def = "A site on a protein.";
 	public static String comment = "This is an example of how to use the OBO annotations.";
 	
-	public @Relationship("part_of") ExonPart exon();
+	public @Relates("part_of") ExonPart exon();
 }
 
 @Term interface Protein { 
@@ -31,8 +31,8 @@ public @Term interface ProteinSite extends Site {
 	public static String id = "request:00004";
 	public static String def = "an exon part of a protein.";
 
-	public @Relationship("has_part") ExonPart[] hasParts();
-	public @Relationship("lacks_part") ExonPart[] lacksParts();
+	public @Relates("has_part") ExonPart[] hasParts();
+	public @Relates("lacks_part") ExonPart[] lacksParts();
 }
 
 @Term interface ModifiedSite extends ProteinSite { 
@@ -41,7 +41,7 @@ public @Term interface ProteinSite extends Site {
 	public static String def = "This is a protein site which contains a modified residue.";
 	public static String comment = "This is an example of sub-classing using the OBO annotations.";
 	
-	public @Relationship Residue[] contains();
+	public @Relates Residue[] contains();
 }
 
 @Term interface Residue { 

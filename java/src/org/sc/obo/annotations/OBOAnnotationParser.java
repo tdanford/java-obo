@@ -15,7 +15,7 @@ public class OBOAnnotationParser extends OntologyAnnotationParser {
 	public Method[] findRelationships(Class cls) {
 		ArrayList<Method> ms = new ArrayList<Method>();
 		for(Method m : cls.getDeclaredMethods()) { 
-			if(m.isAnnotationPresent(Relationship.class)) { 
+			if(m.isAnnotationPresent(Relates.class)) { 
 				ms.add(m);
 			}
 		}
@@ -23,8 +23,8 @@ public class OBOAnnotationParser extends OntologyAnnotationParser {
 	}
 	
 	public String relationshipTypedef(Method m) { 
-		if(m.isAnnotationPresent(Relationship.class)) {
-			Relationship rel = m.getAnnotation(Relationship.class);
+		if(m.isAnnotationPresent(Relates.class)) {
+			Relates rel = m.getAnnotation(Relates.class);
 			String typedef = rel.value();
 			if(typedef == null || typedef.length() == 0) { 
 				typedef = unCamelCase(m.getName(), "_");
@@ -38,8 +38,8 @@ public class OBOAnnotationParser extends OntologyAnnotationParser {
 	}
 	
 	public Class relationshipType(Method m) { 
-		if(m.isAnnotationPresent(Relationship.class)) {
-			Relationship rel = m.getAnnotation(Relationship.class);
+		if(m.isAnnotationPresent(Relates.class)) {
+			Relates rel = m.getAnnotation(Relates.class);
 			Class type = m.getReturnType();
 			if(type.isArray()) { 
 				type = type.getComponentType();
@@ -114,7 +114,7 @@ public class OBOAnnotationParser extends OntologyAnnotationParser {
 	}
 	
 	private boolean isRelationship(Method m) { 
-		return m.isAnnotationPresent(org.sc.obo.annotations.Relationship.class);
+		return m.isAnnotationPresent(org.sc.obo.annotations.Relates.class);
 	}
 	
 	
