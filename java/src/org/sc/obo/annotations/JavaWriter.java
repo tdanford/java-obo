@@ -2,7 +2,11 @@ package org.sc.obo.annotations;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class JavaWriter {
 	
@@ -12,12 +16,39 @@ public class JavaWriter {
 	public static final Integer INTERFACE = 1;
 	public static final Integer METHOD = 2;
 	
+	private Set<Class> usedClasses;
+	
 	private PrintWriter writer;
 	private LinkedList<Integer> blockTypes;
 	
 	public JavaWriter(PrintWriter w) { 
 		writer = w;
 		blockTypes = new LinkedList<Integer>();
+		usedClasses = new TreeSet<Class>(new ClassNameComparator());
+	}
+	
+	private static class ClassNameComparator implements Comparator<Class> { 
+		public int compare(Class c1, Class c2) { 
+			return c1.getCanonicalName().compareTo(c2.getCanonicalName());
+		}
+	}
+	
+	public void useClasses(Class... cs) {
+		if(cs != null) { 
+			for(Class c : cs) {
+				if(c != null && !c.getCanonicalName().equals(String.format("java.lang.%s", c.getSimpleName()))) { 
+					usedClasses.add(c);
+				}
+			}
+		}
+	}
+	
+	public String getImports() {  
+		StringBuilder sb = new StringBuilder();
+		for(Class c : usedClasses) { 
+			sb.append(String.format("import %s;\n", c.getCanonicalName()));
+		}
+		return sb.toString();
 	}
 	
 	private boolean printIfPublic(int mod) { 
@@ -77,6 +108,8 @@ public class JavaWriter {
 		
 		writer.println("{");
 		blockTypes.addFirst(INTERFACE);
+		
+		useClasses(interfaces);
 	}
 	
 	public void endInterface() {
@@ -103,7 +136,10 @@ public class JavaWriter {
 		}
 		
 		writer.println("{");
-		blockTypes.addFirst(CLASS);		
+		blockTypes.addFirst(CLASS);
+		
+		useClasses(superClass);
+		useClasses(interfaces);
 	}
 	
 	public void endClass() { 
@@ -131,6 +167,8 @@ public class JavaWriter {
 		}
 		
 		writer.println();
+		
+		useClasses(type);
 	}
 	
 	private void printMethodLine(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList) { 
@@ -160,6 +198,10 @@ public class JavaWriter {
 				writer.print(throwsList[i].getSimpleName());
 			}
 		}
+		
+		useClasses(returnType);
+		useClasses(argTypes);
+		useClasses(throwsList);
 	}
 		
 	public void methodDeclaration(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList) { 

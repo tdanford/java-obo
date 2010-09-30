@@ -27,6 +27,7 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		
 		java.endInterface();
 		
+		//return String.format("%s\n%s", java.getImports(), writer.toString());
 		return writer.toString();
 	} 
 }
