@@ -18,6 +18,8 @@ public class OBOTermCreator {
 			OBOAnnotationParser obo = new OBOAnnotationParser();
 			System.out.println(obo.stanza(cls));
 			
+			System.out.println(new JavaExporter().export(cls));
+			
 		} catch (CannotCompileException e) {
 			e.printStackTrace(System.err);
 		}
