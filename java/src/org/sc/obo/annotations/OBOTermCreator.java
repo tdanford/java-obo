@@ -1,5 +1,6 @@
 package org.sc.obo.annotations;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -138,6 +139,7 @@ public class OBOTermCreator {
 		ccClassName = ccClassName.replaceAll("'\\s", " prime ");
 		ccClassName = ccClassName.replaceAll("'", "");
 		ccClassName = ccClassName.replaceAll("\"", "");
+		//ccClassName = ccClassName.replaceAll("\\\\", "\\\\\\\\");    
 
 		ccClassName = OntologyAnnotationParser.camelCase(ccClassName, " ");
 		
@@ -280,6 +282,14 @@ public class OBOTermCreator {
 		
 		return countedName;
 	}
+	
+	private Class getArrayType(Class type) { 
+		return Array.newInstance(type, 0).getClass();
+	}
+	
+	private String removeSlashes(String str) { 
+		return str.replaceAll("\\\\", "\\\\\\\\"); // replace single \'s with \\'s.  Gah.
+	}
 
 	/**
 	 * Dynamically generates a Class file, for an interface that represents an OBO term with the given fields.
@@ -345,9 +355,9 @@ public class OBOTermCreator {
         CtField defField = new CtField(stringClass, "def", cc);
         defField.setModifiers(javassist.Modifier.PUBLIC | javassist.Modifier.STATIC | javassist.Modifier.FINAL);
 
-        cc.addField(idField, CtField.Initializer.constant(id));
-        cc.addField(nameField, CtField.Initializer.constant(name));
-        cc.addField(defField, CtField.Initializer.constant(def));
+        cc.addField(idField, CtField.Initializer.constant(removeSlashes(id)));
+        cc.addField(nameField, CtField.Initializer.constant(removeSlashes(name)));
+        cc.addField(defField, CtField.Initializer.constant(removeSlashes(def)));
         
         if(is_a != null) { 
         	for(Class superClass : is_a) { 
@@ -390,10 +400,13 @@ public class OBOTermCreator {
         				throw new IllegalArgumentException(id + " " + Arrays.asList(relTypes));
         			}
         			
-        			String typeName = relTypes[i].getCanonicalName();
-        			String methodName = findNonConflictingName(ccClassName, relTypes[i], nonDups[i], null, is_a);
+        			Class arrayType = relTypes[i].isArray() ? relTypes[i] : getArrayType(relTypes[i]);
+        			
+        			String typeName = arrayType.getCanonicalName();
+        			String methodName = findNonConflictingName(ccClassName, arrayType, nonDups[i], null, is_a);
 
         			CtClass relTypeClass = cp.get(typeName);
+        			
         			CtMethod relMethod = new CtMethod(relTypeClass, methodName, new CtClass[]{}, cc);
         			relMethod.setModifiers(Modifier.PUBLIC | Modifier.ABSTRACT);
 
