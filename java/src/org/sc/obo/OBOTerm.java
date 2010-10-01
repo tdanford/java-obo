@@ -15,6 +15,11 @@ public class OBOTerm extends OBOStanza {
 	
 	public String getName() { return name; }
 	
+	public boolean isObsolete() { 
+		return hasValue("is_obsolete") && 
+			values("is_obsolete").get(0).getRawString().trim().equals("true");
+	}
+	
 	public void addValue(String k, OBOValue v) { 
 		super.addValue(k, v);
 		
