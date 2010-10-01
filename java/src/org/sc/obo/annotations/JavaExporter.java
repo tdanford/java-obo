@@ -2,6 +2,7 @@ package org.sc.obo.annotations;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -12,7 +13,7 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		PrintWriter pw = new PrintWriter(writer);
 		JavaWriter java = new JavaWriter(pw);
 		
-		java.beginInterface(0, camelCase(name(cls), "\\s+"), cls.getInterfaces(), Term.class);
+		java.beginInterface(0, cls.getSimpleName(), cls.getInterfaces(), Term.class);
 		
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "id", id(cls));
 		java.field(Modifier.PUBLIC | Modifier.STATIC, String.class, "name", name(cls));
@@ -20,7 +21,7 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		
 		for(Method method : findImmediateRelations(cls)) {
 			java.methodDeclaration(method.getModifiers(), method.getReturnType(), method.getName(),
-					null, null, null, Property.class);
+					null, null, null, new MethodRelates(method));
 		}
 		
 		java.endInterface();
@@ -28,4 +29,25 @@ public class JavaExporter extends OBOAnnotationParser implements Exporter {
 		//return String.format("%s\n%s", java.getImports(), writer.toString());
 		return writer.toString();
 	} 
+	
+	private class MethodRelates implements Relates {
+		
+		private Method method;
+	
+		public MethodRelates(Method m) { 
+			method = m;
+		}
+		
+		public String value() {
+			if(method.isAnnotationPresent(Relates.class)) { 
+				return method.getAnnotation(Relates.class).value();
+			} else { 
+				return method.getName();
+			}
+		}
+
+		public Class<? extends Annotation> annotationType() {
+			return Relates.class;
+		} 
+	}
 }

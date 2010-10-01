@@ -1,12 +1,17 @@
 package org.sc.obo.annotations;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JavaWriter {
 	
@@ -25,6 +30,97 @@ public class JavaWriter {
 		writer = w;
 		blockTypes = new LinkedList<Integer>();
 		usedClasses = new TreeSet<Class>(new ClassNameComparator());
+	}
+	
+	private String annotationValueString(Object value) {
+		if(value instanceof Class) { 
+			Class cls = (Class)value;
+			useClasses(cls);
+			return String.format("%s.class", cls.getSimpleName());
+		} else if (value instanceof String) {
+			String str = (String)value;
+			Pattern p = Pattern.compile("(?:^|[^\\\\])(\")");
+			Matcher m = p.matcher(str);
+			while(m.matches()) { 
+				int start = m.start(1), end = m.end(1);
+				str = str.substring(0, start) + "\\\"" + str.substring(end, str.length());
+				m = p.matcher(str);
+			}
+			str = str.replaceAll("\\\\:", ":");
+			return String.format("\"%s\"", str);
+		} else { 
+			return String.valueOf(value);
+		}
+	}
+	
+	/**
+	 * Annotations are represented in two ways: either as a "vanilla" Class object, or as an object 
+	 * that implements the annotation class and contains all the annotation values.  These need to be rendered
+	 * in one of the two ways.  
+	 * 
+	 * @param ann
+	 * @return
+	 */
+	public String renderAnnotation(Object ann) { 
+		if(ann instanceof Class) { 
+			Class annClass = (Class)ann;
+			useClasses(annClass);
+			return String.format("@" + annClass.getSimpleName());
+
+		} else if (ann instanceof Annotation) {
+			Annotation annotation = (Annotation)ann;
+			Class annClass = annotation.annotationType();
+			useClasses(annClass);
+			
+			StringBuilder sb = new StringBuilder();
+			String base = String.format("@" + annClass.getSimpleName());
+			
+			String defaultValue = null;
+
+			for(Method m : annClass.getDeclaredMethods()) { 
+				Class type = m.getReturnType();
+				String mName = m.getName();
+				int mod = m.getModifiers();
+				if(Modifier.isPublic(mod) && Modifier.isAbstract(mod) && m.getParameterTypes().length == 0) { 
+					if(sb.length() > 0) { sb.append(", "); }
+					try { 
+						String value = annotationValueString(m.invoke(ann));
+						
+						if(mName.equals("value")) { 
+							defaultValue = value;
+						} else { 
+							sb.append(String.format("%s=%s", mName, value));
+						}
+					
+						useClasses(type);
+
+					} catch (IllegalAccessException e) {
+						throw new IllegalArgumentException(String.valueOf(ann));
+					} catch (InvocationTargetException e) {
+						throw new IllegalArgumentException(String.valueOf(ann));
+					}
+				} else { 
+					System.err.println(String.format("Method %s has modifiers %d and param length %d",
+							mName, mod, m.getParameterTypes().length));
+				}
+			}
+			
+			if(defaultValue != null) { 
+				if(sb.length() == 0) { 
+					sb.append(defaultValue);
+				} else { 
+					sb.append(String.format(", value=%s", defaultValue));
+				}
+			}
+			
+			if(sb.length() > 0) { 
+				return String.format("%s(%s)", base, sb.toString());
+			} else { 
+				return base;
+			}
+		} else { 
+			throw new IllegalArgumentException(String.format("Unsupported annotation class: %s", ann.getClass().getCanonicalName()));
+		}
 	}
 	
 	private static class ClassNameComparator implements Comparator<Class> { 
@@ -91,12 +187,15 @@ public class JavaWriter {
 		writer.print(indent());
 	}
 	
-	public void beginInterface(int modifiers, String interfaceName, Class[] interfaces, Class... annotations) {
-		
-		for(Class annotation : annotations) { 
-			writer.println(String.format("@%s", annotation.getSimpleName()));
+	public void beginInterface(int modifiers, String interfaceName, Class[] interfaces, Object... annotations) {
+
+		writer.println();
+
+		if(annotations != null && annotations.length > 0) {
+			for(Object annotation : annotations) { 
+				writer.println(String.format("%s%s", indent(), renderAnnotation(annotation)));
+			}
 		}
-		useClasses(annotations);
 		
 		doIndent();
 		printIfAccess(modifiers);
@@ -122,7 +221,16 @@ public class JavaWriter {
 		endWithType(INTERFACE);
 	}
 	
-	public void beginClass(int modifiers, String className, Class superClass, Class[] interfaces) { 
+	public void beginClass(int modifiers, String className, Class superClass, Class[] interfaces, Object... annotations) { 
+
+		writer.println();
+
+		if(annotations != null && annotations.length > 0) {
+			for(Object annotation : annotations) { 
+				writer.println(String.format("%s%s", indent(), renderAnnotation(annotation)));
+			}
+		}
+		
 		doIndent();
 		printIfAccess(modifiers);
 		printIfStatic(modifiers);
@@ -157,11 +265,15 @@ public class JavaWriter {
 	}
 	
 	public void field(int modifiers, Class type, String name, String init, Class... annotations) { 
-		for(Class annotation : annotations) { 
-			writer.println(String.format("@%s", annotation.getSimpleName()));
+
+		if(annotations != null && annotations.length > 0) {
+			writer.println();
+			for(Class annotation : annotations) { 
+				writer.println(String.format("%s@%s", indent(), annotation.getSimpleName()));
+			}
+			useClasses(annotations);
 		}
-		useClasses(annotations);
-		
+
 		doIndent();
 		printIfAccess(modifiers);
 		printIfStatic(modifiers);
@@ -182,11 +294,13 @@ public class JavaWriter {
 		useClasses(type);
 	}
 	
-	private void printMethodLine(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
-		for(Class annotation : annotations) { 
-			writer.println(String.format("@%s", annotation.getSimpleName()));
+	private void printMethodLine(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Object... annotations) {
+		
+		writer.println();
+		
+		for(Object annotation : annotations) { 
+			writer.println(String.format("%s%s", indent(), renderAnnotation(annotation)));
 		}
-		useClasses(annotations);
 		
 		doIndent();
 		printIfAccess(modifiers);
@@ -220,12 +334,12 @@ public class JavaWriter {
 		useClasses(throwsList);
 	}
 		
-	public void methodDeclaration(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
+	public void methodDeclaration(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Object... annotations) { 
 		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList, annotations);
 		writer.println(";");
 	}
 	
-	public void beginMethod(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Class... annotations) { 
+	public void beginMethod(int modifiers, Class returnType, String methodName, Class[] argTypes, String[] argNames, Class[] throwsList, Object... annotations) { 
 		printMethodLine(modifiers, returnType, methodName, argTypes, argNames, throwsList, annotations);
 		writer.println(" {");
 		blockTypes.addFirst(METHOD);
