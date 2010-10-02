@@ -174,6 +174,19 @@ public class OntologyAnnotationParser {
 		return ms.toArray(new Method[0]);
 	}
 	
+	public Method[] findRelations(Class cls, String typedef) { 
+		ArrayList<Method> ms = new ArrayList<Method>();
+		for(Method m : cls.getMethods()) { 
+			if(m.isAnnotationPresent(Relates.class)) {
+				Relates rel = m.getAnnotation(Relates.class);
+				if(rel.value().equals(typedef)) { 
+					ms.add(m);
+				}
+			}
+		}
+		return ms.toArray(new Method[0]);		
+	}
+	
 	public Method[] findAllRelations(Class cls) {
 		ArrayList<Method> ms = new ArrayList<Method>();
 		for(Method m : cls.getMethods()) { 
