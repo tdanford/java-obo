@@ -1,16 +1,9 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 import java.util.*;
 import java.lang.reflect.*;
 
 public class OBOAnnotationParser extends OntologyAnnotationParser {
-	
-	public static void main(String[] args) {		
-		OBOAnnotationParser obo = new OBOAnnotationParser();
-		
-		Class c= ModifiedSite.class;
-		System.out.println(obo.stanza(c));
-	}
 	
 	public String name(Class value) {
 		try { 

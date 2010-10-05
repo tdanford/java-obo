@@ -1,10 +1,13 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import org.sc.obo.annotations.Relates;
+import org.sc.obo.annotations.Term;
 
 public class JavaExporter extends OBOAnnotationParser implements Exporter {
 	

@@ -1,4 +1,4 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;

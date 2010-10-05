@@ -1,4 +1,4 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 public class OBOTermValueException extends RuntimeException {
 

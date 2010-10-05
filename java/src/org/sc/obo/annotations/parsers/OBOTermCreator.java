@@ -1,4 +1,4 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -15,6 +15,7 @@ import org.sc.obo.OBOOntology;
 import org.sc.obo.OBOStanza;
 import org.sc.obo.OBOTerm;
 import org.sc.obo.OBOValue;
+import org.sc.obo.annotations.ProteinSite;
 
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;

@@ -1,7 +1,10 @@
-package org.sc.obo.annotations;
+package org.sc.obo.annotations.parsers;
 
 import java.util.*;
 import java.lang.reflect.*;
+
+import org.sc.obo.annotations.Relates;
+import org.sc.obo.annotations.Term;
 
 public class OntologyAnnotationParser {
 
