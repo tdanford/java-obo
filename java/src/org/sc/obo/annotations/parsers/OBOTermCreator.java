@@ -15,7 +15,6 @@ import org.sc.obo.OBOOntology;
 import org.sc.obo.OBOStanza;
 import org.sc.obo.OBOTerm;
 import org.sc.obo.OBOValue;
-import org.sc.obo.annotations.ProteinSite;
 
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
@@ -26,24 +25,6 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.StringMemberValue;
 
 public class OBOTermCreator {
-	
-	public static void main(String[] args) { 
-		try {
-			OBOTermCreator creator = new OBOTermCreator();
-			Class cls = creator.createTerm("request_0010",
-					"foo bar", 
-					"a test term", null, 
-					new Class[] { ProteinSite.class }, null, null);
-			
-			OBOAnnotationParser obo = new OBOAnnotationParser();
-			System.out.println(obo.stanza(cls));
-			
-			System.out.println(new JavaExporter().export(cls));
-			
-		} catch (CannotCompileException e) {
-			e.printStackTrace(System.err);
-		}
-	}
 	
 	private Map<String,Class> created;
 	
