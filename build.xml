@@ -1,12 +1,12 @@
 <project name="java-obo" default="dist" basedir=".">
     <description>
-		Example build file.
+		Build file for the JAVA-OBO project.
     </description>
 
 	<property name="javadir" location="java" />
 	<property name="src" location="${javadir}/src"/>
 	<property name="lib"  location="${javadir}/lib"/>
-	<property name="build" location="${javadir}/build"/>
+	<property name="build" location="${javadir}/bin"/>
 	<property name="dist"  location="dist"/>
 	<property name="docs"  location="${dist}/docs"/>
 	<property name="project"  value="java-obo"/>
