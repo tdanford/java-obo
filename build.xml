@@ -4,7 +4,8 @@
     </description>
 
 	<property name="javadir" location="java" />
-	<property name="src" location="${javadir}/src"/>
+	<property name="src" location="${javadir}/src/main"/>
+	<property name="testsrc" location="${javadir}/src/test"/>
 	<property name="lib"  location="${javadir}/lib"/>
 	<property name="build" location="${javadir}/bin"/>
 	<property name="dist"  location="dist"/>
