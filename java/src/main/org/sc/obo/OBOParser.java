@@ -32,6 +32,10 @@ public class OBOParser {
 	
 	public OBOOntology getOntology() { return currentOntology; }
 	
+	public void parse(Reader r) throws IOException { 
+		parse(new BufferedReader(r));
+	}
+	
 	public void parse(BufferedReader br) throws IOException { 
 		String line = null;
 		
