@@ -109,5 +109,19 @@ public class OBOTerm extends OBOStanza {
 			}
 		}
 		return isa.toArray(new String[0]);
+	}	
+	
+	public String[] intersectionOf() { 
+		ArrayList<String> inters = new ArrayList<String>();
+		if(hasValue("intersection_of")) { 
+			for(OBOValue value : values("intersection_of")) { 
+				Matcher relMatcher = relationshipPattern.matcher(value.getValue());
+				Matcher isaMatcher = isAPattern.matcher(value.getValue());
+				if(!relMatcher.matches() && isaMatcher.matches()) { 
+					inters.add(isaMatcher.group(1));
+				}
+			}
+		}
+		return inters.toArray(new String[0]);
 	}
 }
